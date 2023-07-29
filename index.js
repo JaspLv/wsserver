@@ -1,5 +1,5 @@
 const express = require('express');
-const server = require('http');
+const http = require('http');
 const socket = require("socket.io")
 const axios = require('axios')
 require('dotenv').config()
@@ -9,7 +9,7 @@ const SECRET = process.env.WEBSOCKET_API_SECRET
 
 
 const app = express()
-server.createServer(app)
+const server = http.createServer(app)
 const io = socket(server);
 
 app.use(express.json())
@@ -67,37 +67,6 @@ const sendData = (user = undefined, data) => {
 
 const isNum = val => !isNaN(parseInt(val))
 
-/*
-По итогу у тебя в апихе 2 экшна будет:
-1.
-{
-  "secret": "secret_communication_password"
-  "action": "publish",
-  "data": {
-    "user_id": "*",
-    "payload": [
-      "any message"
-    ]
-  }
-}
-
-2.
-{
-  "secret": "secret_communication_password"
-  "action": "disconnect",
-  "data": {
-    "user_id": "*"
-  }
-}
-
-Во всех кейсах user_ids может быть либо строкой, содержащей конкретный идентификатор, либо массивом, содержащий несколько идентификаторов, либо *, означающий что всем подключенным к тебе
-
-Во всех кейсах secret это секретный ключ, по которму мы определяем что это действительно запрос между нами, а не пришедший извне. Секретный ключ знает только бэк и твой вебсокет сервер. Ты сначала проверяешь его, и только если он совпадает, продолжаешь работу. Иначе - этот запрос игнорируется
-
-В первом кейсе payload может быть и массивом, и объектом, и строкой, и в целом чем угодно. payload нужно будет отдать на фронт в сыром виде "как есть"
-
-Бэк уже готов слать запросы, ахах
-}*/
 
 
 server.listen(3000);
