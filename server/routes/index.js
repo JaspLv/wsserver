@@ -29,6 +29,7 @@ const parseData = (data) => {
     }
     if (user_id === '*') {
         sendResponseToClient(null, action, data.payload)
+        return
     }
     if (user_id) {
         sendResponseToClient(user_id, action, data.payload)
@@ -54,7 +55,6 @@ const sendToClient = (user = undefined, data) => {
     io.emit('payload', data)
 }
 
-const isNum = val => !isNaN(parseInt(val))
 
 
 module.exports = routes
