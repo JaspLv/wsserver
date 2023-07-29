@@ -6,6 +6,7 @@ require('dotenv').config()
 
 const BACK_URL = process.env.WEBSOCKET_API_ENDPOINT
 const SECRET = process.env.WEBSOCKET_API_SECRET
+const PORT = process.env.PORT
 
 
 const app = express()
@@ -69,4 +70,4 @@ const isNum = val => !isNaN(parseInt(val))
 
 
 
-server.listen(3000);
+server.listen(PORT, () => console.log('Server has been started', PORT));
