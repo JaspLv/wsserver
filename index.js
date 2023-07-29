@@ -17,17 +17,17 @@ app.use(express.json())
 
 io.on("connection", async socket => {
     await sendToBack({secret: SECRET, action: 'connect', data: {user_id: socket.id}})
-    socket.on("message", async data => {
+    socket.on("payload", async data => {
         if (!data) return
         if (data.secret !== SECRET) return
-        const res = await sendToBack({secret: SECRET, action: "publish", data: {...data, id: socket.id}})
+        const res = await sendToBack({secret: SECRET, action: "payload", data: {user_id: socket.id, payload: data}})
         if (!res) return
         if (!res.status) socket.disconnect(true)
         socket.join(socket.id);
     });
 
     socket.on('disconnect', async reason => {
-        await sendToBack({secret: SECRET, action: 'disconnect', data: {user_id: socket.id, reason}})
+        await sendToBack({secret: SECRET, action: 'disconnect', data: {user_id: socket.id, payload: {reason}}})
     })
 });
 
@@ -40,7 +40,12 @@ app.post('/', (req, res) => {
 
 const sendToBack = async (data) => {
     try {
-        return await axios.post(BACK_URL, data)
+        return await axios.post(BACK_URL, data,
+            {
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
+            })
     }catch (e) {
         console.log(e)
         return false
@@ -65,7 +70,7 @@ const parseData = (data) => {
 
 const sendResponseToClient = (user = null, type, data = []) => {
     if (type === 'disconnect') disconnectUser(user)
-    if (type === 'publish') sendData(user, data)
+    if (type === 'payload') sendData(user, data)
 }
 
 const disconnectUser = (user = null) => {
@@ -75,7 +80,7 @@ const disconnectUser = (user = null) => {
 
 const sendData = (user = undefined, data) => {
     if (user) return io.to(user).emit('publish', data)
-    io.emit('publish', data)
+    io.emit('payload', data)
 }
 
 const isNum = val => !isNaN(parseInt(val))
