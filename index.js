@@ -45,8 +45,9 @@ const parseData = (data) => {
         return
     }
     if (!isNum(user_id)) {
-        sendResponseToClient(user_id, action, data.payload)
-    }else {
+        return sendResponseToClient(user_id, action, data.payload)
+    }
+    if (user_id === '*') {
         sendResponseToClient(null, action, data.payload)
     }
 }
