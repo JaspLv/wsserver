@@ -15,19 +15,24 @@ const io = socket(server);
 
 app.use(express.json())
 
-io.on("connection", (socket) => {
-    socket.on("new user", async (data) => {
+io.on("connection", async socket => {
+    await sendToBack({secret: SECRET, action: 'connect', data: {user_id: socket.id}})
+    socket.on("message", async data => {
         if (!data) return
         if (data.secret !== SECRET) return
-        const res = await axios.post(BACK_URL, {secret: SECRET, action: "publish", data})
+        const res = await sendToBack({secret: SECRET, action: "publish", data: {...data, id: socket.id}})
+        if (!res) return
         if (!res.status) socket.disconnect(true)
-        socket.join(data.user_id);
+        socket.join(socket.id);
     });
 
-    socket.on("disconnect", () => {
-        io.emit("user disconnected");
-    });
+    socket.on('disconnect', async reason => {
+        await sendToBack({secret: SECRET, action: 'disconnect', data: {user_id: socket.id, reason}})
+    })
 });
+
+
+
 
 
 app.post('/', (req, res) => {
@@ -35,6 +40,15 @@ app.post('/', (req, res) => {
     if (data.secret !== SECRET) return
     parseData(data.data)
 })
+
+const sendToBack = async (data) => {
+    try {
+        return await axios.post(BACK_URL, data)
+    }catch (e) {
+        console.log(e)
+        return false
+    }
+}
 
 const parseData = (data) => {
     const { user_id, action } = data
