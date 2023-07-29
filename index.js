@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const socket = require("socket.io")
+const { Server } = require("socket.io")
 const axios = require('axios')
 require('dotenv').config()
 
@@ -11,7 +11,7 @@ const PORT = process.env.PORT
 
 const app = express()
 const server = http.createServer(app)
-const io = socket(server);
+const io = new Server(server);
 
 app.use(express.json())
 
