@@ -32,9 +32,6 @@ io.on("connection", async socket => {
 });
 
 
-
-
-
 app.post('/', (req, res) => {
     const { data } = req.body
     if (data.secret !== SECRET) return
