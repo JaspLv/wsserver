@@ -1,6 +1,7 @@
 const {Router} = require("express");
 const ConnectedSockets = require("../../data/connectedSockets");
 const GlobalWsConnect = require('../../data/globalWsConnect')
+const path = require("path");
 const routes = Router()
 
 const SECRET = process.env.WEBSOCKET_API_SECRET
@@ -14,6 +15,10 @@ routes.post('/', (req, res) => {
     parseData(data.data)
 })
 
+routes.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'index.html'))
+})
+
 const parseData = (data) => {
     const {user_id, action} = data
     if (Array.isArray(user_id)) {
@@ -22,11 +27,11 @@ const parseData = (data) => {
         }
         return
     }
-    if (!isNum(user_id)) {
-        sendResponseToClient(user_id, action, data.payload)
-    }
     if (user_id === '*') {
         sendResponseToClient(null, action, data.payload)
+    }
+    if (user_id) {
+        sendResponseToClient(user_id, action, data.payload)
     }
 }
 

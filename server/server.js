@@ -7,7 +7,6 @@ const createHttpServer = (PORT) => {
     const server = http.createServer(app)
     app.use(express.json())
     app.use('/', require('./routes/index'))
-
     server.listen(PORT, () => console.log('Server has been started', PORT))
 
     return server
